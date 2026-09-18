@@ -10,6 +10,3 @@ Proyecto listo para publicar los cuatro tutoriales HTML en una sola web.
 5. En Settings/Networking generá un dominio público.
 
 La portada (`index.html`) enlaza los cuatro tutoriales.
-
-## Móviles
-Los tutoriales incluyen un modo de pantalla completa compatible con iPhone/iPad mediante un fallback inmersivo cuando Safari no ofrece Fullscreen API para elementos HTML.
