@@ -375,6 +375,58 @@
   .dots { display: flex; gap: 7px; justify-content: center; margin-top: 14px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.25s ease, transform 0.25s ease; }
   .dot.on { background: var(--accent); transform: scale(1.25); }
+
+  /* ---- compatibilidad móvil / iPhone: pantalla completa simulada ---- */
+  body.mobile-fullscreen {
+    overflow: hidden !important;
+    padding: 0 !important;
+    background: var(--bg);
+  }
+  body.mobile-fullscreen > h1,
+  body.mobile-fullscreen > .subtitle {
+    display: none !important;
+  }
+  body.mobile-fullscreen .stage-wrap {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+             max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background: var(--bg) !important;
+  }
+  body.mobile-fullscreen .stage {
+    width: min(100%, calc((100dvh - 88px) * 2.10)) !important;
+    max-height: calc(100dvh - 88px) !important;
+    flex: 0 0 auto;
+  }
+  body.mobile-fullscreen .controls {
+    margin-top: 8px !important;
+    gap: 6px !important;
+  }
+  body.mobile-fullscreen button.ctrl {
+    padding: 9px 12px !important;
+    font-size: 0.82rem !important;
+  }
+  body.mobile-fullscreen .dots {
+    margin-top: 7px !important;
+  }
+  @media (max-width: 700px) {
+    body { padding: 18px 8px 28px; }
+    h1 { font-size: 1.05rem; }
+    .subtitle { font-size: .82rem; margin-bottom: 12px; }
+    .controls { margin-top: 10px; gap: 6px; }
+    button.ctrl { padding: 10px 12px; font-size: .82rem; }
+    .caption-bar { padding: 8px 10px; font-size: .72rem; }
+    .step-badge { top: 7px; left: 7px; font-size: .65rem; padding: 4px 8px; }
+  }
+
 </style>
 </head>
 <body>
@@ -661,6 +713,29 @@
   const playBtn = document.getElementById('playBtn');
   const resetBtn = document.getElementById('resetBtn');
   const fsBtn = document.getElementById('fsBtn');
+
+  // Fallback para iPhone/iPad: Safari no permite Fullscreen API sobre elementos HTML comunes.
+  // En esos casos usamos un modo inmersivo que ocupa todo el viewport.
+  let mobilePseudoFullscreen = false;
+  const supportsElementFullscreen = !!(stageWrap.requestFullscreen || stageWrap.webkitRequestFullscreen);
+
+  function isPseudoFullscreen() {
+    return mobilePseudoFullscreen || document.body.classList.contains('mobile-fullscreen');
+  }
+
+  function enterPseudoFullscreen() {
+    mobilePseudoFullscreen = true;
+    document.body.classList.add('mobile-fullscreen');
+    window.scrollTo(0, 0);
+    updateFsBtn();
+  }
+
+  function exitPseudoFullscreen() {
+    mobilePseudoFullscreen = false;
+    document.body.classList.remove('mobile-fullscreen');
+    updateFsBtn();
+  }
+
   const stageWrap = document.querySelector('.stage-wrap');
 
   const DNI_SAMPLE = "30.545.789";
@@ -1272,29 +1347,57 @@
   });
 
   function isFullscreen() {
-    return document.fullscreenElement === stageWrap || document.webkitFullscreenElement === stageWrap;
+    return document.fullscreenElement === stageWrap ||
+           document.webkitFullscreenElement === stageWrap ||
+           isPseudoFullscreen();
   }
 
   function updateFsBtn() {
     fsBtn.textContent = isFullscreen() ? '✕ Salir de pantalla completa' : '⤢ Pantalla completa';
   }
 
-  fsBtn.addEventListener('click', () => {
+  fsBtn.addEventListener('click', async () => {
     try {
-      if (!isFullscreen()) {
-        if (stageWrap.requestFullscreen) stageWrap.requestFullscreen();
-        else if (stageWrap.webkitRequestFullscreen) stageWrap.webkitRequestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
+      if (isPseudoFullscreen()) {
+        exitPseudoFullscreen();
+        return;
+      }
+
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (document.exitFullscreen) await document.exitFullscreen();
         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        return;
+      }
+
+      // iPhone/iPad y navegadores sin Fullscreen API para elementos:
+      if (!supportsElementFullscreen) {
+        enterPseudoFullscreen();
+        return;
+      }
+
+      try {
+        if (stageWrap.requestFullscreen) await stageWrap.requestFullscreen();
+        else if (stageWrap.webkitRequestFullscreen) stageWrap.webkitRequestFullscreen();
+      } catch (err) {
+        // Si el navegador rechaza Fullscreen, usamos igualmente el modo inmersivo.
+        enterPseudoFullscreen();
       }
     } catch (e) {
-      console.warn('Pantalla completa no disponible:', e);
+      enterPseudoFullscreen();
     }
   });
 
   document.addEventListener('fullscreenchange', updateFsBtn);
   document.addEventListener('webkitfullscreenchange', updateFsBtn);
+
+  // En modo inmersivo móvil, Escape/back visual restaura la página cuando sea posible.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isPseudoFullscreen()) exitPseudoFullscreen();
+  });
+
+  window.addEventListener('orientationchange', () => {
+    if (isPseudoFullscreen()) setTimeout(() => window.scrollTo(0, 0), 150);
+  });
 
   renderState();
 </script>
