@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123d68">
+<title>Tutoriales CPIM</title>
+<style>
+:root{--blue:#123d68;--blue2:#1d5b91;--bg:#f4f6f8;--card:#fff;--text:#17212b;--muted:#66717d}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;padding:38px 20px 34px;text-align:center}
+header h1{margin:0;font-size:clamp(1.65rem,5vw,2.4rem)} header p{margin:10px auto 0;opacity:.9;max-width:650px}
+main{max-width:900px;margin:0 auto;padding:24px 16px 40px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:var(--card);border:1px solid #dce2e8;border-radius:16px;padding:20px;min-height:170px;box-shadow:0 5px 20px rgba(20,40,60,.07);transition:.15s}
+.card:active{transform:scale(.985)} .num{font-size:.78rem;font-weight:700;color:var(--blue2);letter-spacing:.08em;text-transform:uppercase}
+.card h2{font-size:1.15rem;margin:10px 0 8px}.card p{font-size:.93rem;line-height:1.45;color:var(--muted);margin:0 0 18px}
+.open{margin-top:auto;color:var(--blue2);font-weight:700}
+footer{text-align:center;color:var(--muted);font-size:.82rem;padding-top:25px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}header{padding-top:calc(32px + env(safe-area-inset-top))}.card{min-height:145px}}
+</style>
+</head>
+<body>
+<header><h1>Tutoriales CPIM</h1><p>Guías interactivas para procedimientos del sistema.</p></header>
+<main>
+<div class="grid">
+<a class="card" href="tercero-recibo.html"><span class="num">Tutorial 01</span><h2>Alta de Tercero y Emisión de Recibo</h2><p>Carga de una persona no matriculada y generación de su recibo.</p><span class="open">Abrir tutorial →</span></a>
+<a class="card" href="recibo-matriculado.html"><span class="num">Tutorial 02</span><h2>Recibo a un Matriculado</h2><p>Procedimiento para generar un recibo a un profesional matriculado.</p><span class="open">Abrir tutorial →</span></a>
+<a class="card" href="empresa-recibo.html"><span class="num">Tutorial 03</span><h2>Alta de Empresa y Emisión de Recibo</h2><p>Alta de una empresa o persona jurídica y emisión del recibo.</p><span class="open">Abrir tutorial →</span></a>
+<a class="card" href="constancia-habilitacion.html"><span class="num">Tutorial 04</span><h2>Constancia de Habilitación</h2><p>Procedimiento para gestionar y generar una constancia de habilitación.</p><span class="open">Abrir tutorial →</span></a>
+</div>
+<footer>Consejo Profesional de Ingeniería de Misiones</footer>
+</main>
+</body></html>
